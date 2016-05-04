@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Socket.IO chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font: 13px Helvetica, Arial;
+        }
+        
+        /*form {
+            background: #000;
+            padding: 3px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        
+        form input {
+            border: 0;
+            padding: 10px;
+            width: 90%;
+            margin-right: .5%;
+        }
+        
+        form button {
+            width: 9%;
+            background: rgb(130, 224, 255);
+            border: none;
+            padding: 10px;
+        }*/
+        
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #messages li {
+            padding: 5px 10px;
+        }
+        
+        #messages li:nth-child(odd) {
+            background: #eee;
+        }
+    </style>
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+    
+</head>
+
+<body>
+    <div>
+    <h1>Horses</h1>
+    <form id="getOdds" action="">
+        <div class="form-group">
+        <div id="horse1">
+            <label for="horse1">Horse 1 | <span class="odds"></span></label>
+            <input id="horse1bets" class="form-control" type="text" name="horse1" />
+        </div>
+        <div id="horse2">
+            <label for="horse2">Horse 2 | <span class="odds"></span></label>
+            <input id="horse2bets" class="form-control" type="text" name="horse2" />
+        </div>
+        <div id="horse3">
+            <label for="horse3">Horse 3 | <span class="odds"></span></label>
+            <input id="horse3bets" class="form-control" type="text" name="horse3" />
+        </div>     
+        <button class="btn btn-default">Get Odds</button>   
+        </div>
+    </form>
+    </div>
+    <ul id="messages"></ul>
+    <form id="chat" action="">
+        <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script>
+        var horses = [{name:'horse1',bets:200,odds:0},{name:'horse2',bets:100,odds:0},{name:'horse3',bets:400,odds:0}];
+        var socket = io();
+        $('#chat').submit(function(){
+            socket.emit('chat message', $('#m').val());
+            $('#m').val('');
+            return false;
+        });
+        $('#getOdds').submit(function(){
+            console.log('getting hit', horses[0].bets);
+            console.log('horses', horses);
+            horses[0].bets = parseInt($('#horse1bets').val() || horses[0].bets);
+            horses[1].bets = parseInt($('#horse2bets').val() || horses[1].bets);
+            horses[2].bets = parseInt($('#horse3bets').val() || horses[2].bets);
+            console.dir('horses', horses);
+           socket.emit('get odds', horses);
+           return false; 
+        });
+        socket.on('chat message', function(msg){
+           $('#messages').append($('<li>').text(socket.id + ' said ' + msg)); 
+        });
+        socket.on('get odds', function(horses){
+            $('.odds').hide();
+            $('.odds').fadeIn(1000);
+            $('#horse1 .odds').text(horses[0].odds);
+            $('#horse2 .odds').text(horses[1].odds);
+            $('#horse3 .odds').text(horses[2].odds);
+        });
+    </script>
+</body>
+
+</html>
