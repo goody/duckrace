@@ -40,5 +40,5 @@ function _getOdds(totalPool, totalHorse){
     console.log('total: ' + totalPool, 'total horse: ' + totalHorse);
   var diff = totalPool - totalHorse;
   var odds = diff/totalHorse;
-  return Math.round(odds) + ' to 1';
+  return (odds < 1 ? odds : Math.round(odds)) + ' to 1';
 };
